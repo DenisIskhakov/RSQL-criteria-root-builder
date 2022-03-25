@@ -9,7 +9,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -23,7 +25,7 @@ public class CriteriaService {
 
 //        CriteriaQuery<Person> personCriteria = cb.createQuery(Person.class);
 //        Root<Person> personRoot = personCriteria.from(Person.class);
-//        personCriteria.select(personRoot);
+//        personCriteria.select(personRoot); // select * from имяТаблицы
 //        em.createQuery(personCriteria)
 //                .getResultList()
 //                .forEach(System.out::println);
@@ -42,13 +44,13 @@ public class CriteriaService {
 //                .getResultList()
 //                .forEach(System.out::println);
 
-        CriteriaQuery<Person> passportLikeCriteria = cb.createQuery(Person.class);
-        Root<Person> likePersonRoot = passportLikeCriteria.from(Person.class);
-        passportLikeCriteria.select(likePersonRoot);
-        passportLikeCriteria.where(cb.like(likePersonRoot.get("lastName"), "A%"));
-        em.createQuery(passportLikeCriteria)
-                .getResultList()
-                .forEach(System.out::println);
+//        CriteriaQuery<Person> passportLikeCriteria = cb.createQuery(Person.class);
+//        Root<Person> likePersonRoot = passportLikeCriteria.from(Person.class);
+//        passportLikeCriteria.select(likePersonRoot);
+//        passportLikeCriteria.where(cb.like(likePersonRoot.get("lastName"), "A%"));
+//        em.createQuery(passportLikeCriteria)
+//                .getResultList()
+//                .forEach(System.out::println);
 //
 //        CriteriaQuery<Passport> passportCriteria = cb.createQuery(Passport.class);
 //        Root<Passport> passportPassportRoot = passportCriteria.from(Passport.class);
@@ -56,5 +58,34 @@ public class CriteriaService {
 //        em.createQuery(passportCriteria)
 //                .getResultList()
 //                .forEach(System.out::println);
+    }
+    // QueryDSL or RSQL - оборетка еще выше
+    //Это просто criteria с root'om and criteriaBuilder
+    public List<Person> findFirstName(String firstName){
+        EntityManager em = entityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+
+        CriteriaQuery<Person> personCriteria = cb.createQuery(Person.class);
+        Root<Person> personRoot = personCriteria.from(Person.class);
+        // select * from [table] where firstName=firstName
+        personCriteria.where(cb.equal(personRoot.get("firstName"),firstName));
+        return em.createQuery(personCriteria)
+                .getResultList();
+
+    }
+    public List<Person> findByLike(String s){
+        EntityManager em = entityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+
+        CriteriaQuery<Person> passportLikeCriteria = cb.createQuery(Person.class);
+        Root<Person> likePersonRoot = passportLikeCriteria.from(Person.class);
+        passportLikeCriteria.select(likePersonRoot);
+        Predicate predicate = cb.like(likePersonRoot.get("lastName"), "%" + s + "%"); // predicate(условие)
+        passportLikeCriteria.where(predicate);
+        return em.createQuery(passportLikeCriteria)
+                .getResultList();
+
     }
 }
