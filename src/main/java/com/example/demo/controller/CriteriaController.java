@@ -22,10 +22,12 @@ public class CriteriaController {
     }
     @GetMapping("/{firstName}")
     public List<Person> findByName(@PathVariable String firstName){
+
        return criteriaService.findFirstName(firstName);
     }
     @GetMapping("/like/{s}")
     public List<Person> findByLike(@PathVariable String s){
+        //ff
         return criteriaService.findByLike(s);
     }
 }
